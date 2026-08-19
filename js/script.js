@@ -1,134 +1,177 @@
-console.log("VibeFit JS 연결 성공!");
+document.addEventListener("DOMContentLoaded", () => {
+  const weatherButtons = document.querySelectorAll("#weatherOptions .option-btn");
+  const moodButtons = document.querySelectorAll("#moodOptions .option-btn");
+  const timeButtons = document.querySelectorAll("#timeOptions .option-btn");
 
-document.addEventListener("DOMContentLoaded", function () {
-  const recommendBtn =
-    document.getElementById("recommend-button") ||
-    document.getElementById("recommendBtn");
+  const recommendBtn = document.getElementById("recommendBtn");
+  const loadingBox = document.getElementById("loadingBox");
+  const resultBox = document.getElementById("resultBox");
 
-  const message = document.getElementById("message");
-  const result = document.getElementById("result");
-
-  if (!recommendBtn) {
-    console.error("추천받기 버튼을 찾을 수 없습니다.");
-    return;
-  }
-
-  if (!result) {
-    console.error("결과 출력 영역을 찾을 수 없습니다.");
-    return;
-  }
-
-  // 체크박스 최대 2개 제한 함수
-  function limitCheckboxSelection(name, label) {
-    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
-
-    checkboxes.forEach(function (checkbox) {
-      checkbox.addEventListener("change", function () {
-        const checkedItems = document.querySelectorAll(
-          `input[name="${name}"]:checked`
-        );
-
-        if (checkedItems.length > 2) {
-          checkbox.checked = false;
-
-          if (message) {
-            message.textContent = `${label}은 최대 2개까지만 선택할 수 있어요.`;
-          }
-        } else {
-          if (message) {
-            message.textContent = "";
-          }
-        }
+  // 여러 개 선택 가능한 버튼 설정
+  function setupMultipleSelect(buttons) {
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        button.classList.toggle("active");
       });
     });
   }
 
-  limitCheckboxSelection("weather", "날씨");
-  limitCheckboxSelection("mood", "기분/컨디션");
+  // 하나만 선택 가능한 버튼 설정
+  function setupSingleSelect(buttons) {
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+  }
 
-  // 추천받기 버튼 클릭 이벤트
-  recommendBtn.addEventListener("click", function () {
-    const selectedWeather = document.querySelectorAll(
-      'input[name="weather"]:checked'
+  // 선택된 값 가져오기
+  function getSelectedValues(selector) {
+    return Array.from(document.querySelectorAll(`${selector}.active`)).map(
+      (button) => button.dataset.value
+    );
+  }
+
+  // HTML 출력 시 안전하게 문자 처리
+  function escapeHTML(text) {
+    if (!text) return "";
+
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  // 에러 메시지 표시
+  function showError(message) {
+    resultBox.classList.remove("hidden");
+    resultBox.innerHTML = `
+      <div class="error-box">
+        ${escapeHTML(message)}
+      </div>
+    `;
+  }
+
+  // 결과 카드 표시
+  function showResult(recommendation, selected) {
+    const exercise = escapeHTML(recommendation.exercise);
+    const reason = escapeHTML(recommendation.reason);
+    const caution = escapeHTML(recommendation.caution);
+    const routine = escapeHTML(recommendation.routine);
+
+    const weather = escapeHTML(selected.weather);
+    const mood = escapeHTML(selected.mood);
+    const time = escapeHTML(selected.time);
+
+    resultBox.classList.remove("hidden");
+
+    resultBox.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-icon">🏃</div>
+          <div>
+            <h3>AI 운동 추천 결과</h3>
+          </div>
+        </div>
+
+        <div class="selected-info">
+          <p><strong>선택한 날씨:</strong> ${weather}</p>
+          <p><strong>선택한 컨디션:</strong> ${mood}</p>
+          <p><strong>운동 가능 시간:</strong> ${time}</p>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-section exercise">
+            <h4>추천 운동</h4>
+            <p>${exercise}</p>
+          </div>
+
+          <div class="result-section reason">
+            <h4>추천 이유</h4>
+            <p>${reason}</p>
+          </div>
+
+          <div class="result-section caution">
+            <h4>주의사항</h4>
+            <p>${caution}</p>
+          </div>
+
+          <div class="result-section routine">
+            <h4>추천 루틴</h4>
+            <p>${routine}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  setupMultipleSelect(weatherButtons);
+  setupMultipleSelect(moodButtons);
+  setupSingleSelect(timeButtons);
+
+  recommendBtn.addEventListener("click", async () => {
+    const selectedWeather = getSelectedValues("#weatherOptions .option-btn");
+    const selectedMood = getSelectedValues("#moodOptions .option-btn");
+    const selectedTimeButton = document.querySelector(
+      "#timeOptions .option-btn.active"
     );
 
-    const selectedMood = document.querySelectorAll(
-      'input[name="mood"]:checked'
-    );
-
-    const selectedTime = document.querySelector('input[name="time"]:checked');
+    const selectedTime = selectedTimeButton ? selectedTimeButton.dataset.value : "";
 
     if (selectedWeather.length === 0) {
-      result.innerHTML = `
-        <h3>추천 결과</h3>
-        <p>날씨를 최소 1개 이상 선택해주세요.</p>
-      `;
+      showError("오늘 날씨를 하나 이상 선택해주세요.");
       return;
     }
 
     if (selectedMood.length === 0) {
-      result.innerHTML = `
-        <h3>추천 결과</h3>
-        <p>기분/컨디션을 최소 1개 이상 선택해주세요.</p>
-      `;
+      showError("현재 기분이나 컨디션을 하나 이상 선택해주세요.");
       return;
     }
 
     if (!selectedTime) {
-      result.innerHTML = `
-        <h3>추천 결과</h3>
-        <p>운동 가능 시간을 선택해주세요.</p>
-      `;
+      showError("운동 가능 시간을 선택해주세요.");
       return;
     }
 
-    const weatherValues = Array.from(selectedWeather).map(function (item) {
-      return item.value;
-    });
+    try {
+      resultBox.classList.add("hidden");
+      resultBox.innerHTML = "";
 
-    const moodValues = Array.from(selectedMood).map(function (item) {
-      return item.value;
-    });
+      loadingBox.classList.remove("hidden");
+      recommendBtn.disabled = true;
+      recommendBtn.innerHTML = "<span>추천 생성 중...</span>";
 
-    const timeValue = selectedTime.value;
+      const response = await fetch("/api/gemini", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          weather: selectedWeather,
+          mood: selectedMood,
+          time: selectedTime,
+        }),
+      });
 
-    let recommendation = "";
+      const data = await response.json();
 
-    if (
-      weatherValues.includes("맑음") &&
-      (moodValues.includes("상쾌함") || moodValues.includes("활력 넘침"))
-    ) {
-      recommendation = "오늘은 야외 러닝이나 빠르게 걷기를 추천해요!";
-    } else if (
-      weatherValues.includes("비") ||
-      weatherValues.includes("눈") ||
-      weatherValues.includes("미세먼지 나쁨")
-    ) {
-      recommendation = "오늘은 실내 홈트레이닝이나 스트레칭을 추천해요.";
-    } else if (
-      moodValues.includes("피곤함") ||
-      moodValues.includes("무기력함")
-    ) {
-      recommendation = "오늘은 무리하지 말고 가벼운 스트레칭이나 요가를 추천해요.";
-    } else if (moodValues.includes("스트레스 많음")) {
-      recommendation = "스트레스 해소를 위해 산책이나 가벼운 유산소 운동을 추천해요.";
-    } else if (moodValues.includes("활력 넘침")) {
-      recommendation = "에너지가 좋은 날이에요! 근력 운동이나 인터벌 운동을 추천해요.";
-    } else {
-      recommendation = "오늘은 가벼운 전신 운동과 스트레칭을 추천해요.";
-    }
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "운동 추천을 가져오지 못했습니다.");
+      }
 
-    result.innerHTML = `
-      <h3>추천 결과</h3>
-      <p>선택한 날씨: ${weatherValues.join(", ")}</p>
-      <p>선택한 기분/컨디션: ${moodValues.join(", ")}</p>
-      <p>운동 가능 시간: ${timeValue}</p>
-      <br>
-      <p><strong>추천 운동:</strong> ${recommendation}</p>
-    `;
-
-    if (message) {
-      message.textContent = "";
+      showResult(data.recommendation, data.selected);
+    } catch (error) {
+      console.error(error);
+      showError(
+        "운동 추천 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+      );
+    } finally {
+      loadingBox.classList.add("hidden");
+      recommendBtn.disabled = false;
+      recommendBtn.innerHTML = "<span>AI 추천받기</span>";
     }
   });
 });
