@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeFit - AI 운동 추천</title>
+
+  <!-- CSS 연결 -->
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">VibeFit</div>
+
+    <nav class="nav">
+      <a href="#home">Home</a>
+      <a href="#recommend">AI Recommend</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- Home Section -->
+  <section id="home" class="section home-section">
+    <div class="home-content">
+      <h1>오늘의 분위기에 맞는 운동을 추천받아보세요</h1>
+      <p>
+        VibeFit은 날씨, 기분, 운동 가능 시간을 바탕으로  
+        당신에게 어울리는 운동을 추천해주는 AI 운동 추천 서비스입니다.
+      </p>
+
+      <a href="#recommend" class="primary-button">운동 추천받기</a>
+    </div>
+  </section>
+
+  <!-- AI Recommend Section -->
+  <section id="recommend" class="section recommend-section">
+    <h2>AI 운동 추천</h2>
+    <p class="section-desc">
+      현재 날씨와 기분, 운동 가능 시간을 선택해주세요.
+    </p>
+
+    <div class="recommend-card">
+      <!-- 날씨 선택 -->
+      <div class="input-group">
+        <h3>오늘의 날씨</h3>
+        <p class="hint">최소 1개, 최대 2개까지 선택할 수 있어요.</p>
+
+        <div class="option-group" id="weather-options">
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="맑음" />
+            <span>맑음</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="흐림" />
+            <span>흐림</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="비" />
+            <span>비</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="눈" />
+            <span>눈</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="더움" />
+            <span>더움</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="추움" />
+            <span>추움</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="바람 많음" />
+            <span>바람 많음</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="weather" value="미세먼지 나쁨" />
+            <span>미세먼지 나쁨</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 기분/컨디션 선택 -->
+      <div class="input-group">
+        <h3>오늘의 기분/컨디션</h3>
+        <p class="hint">최소 1개, 최대 2개까지 선택할 수 있어요.</p>
+
+        <div class="option-group" id="mood-options">
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="상쾌함" />
+            <span>상쾌함</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="평온함" />
+            <span>평온함</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="피곤함" />
+            <span>피곤함</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="스트레스 많음" />
+            <span>스트레스 많음</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="우울함" />
+            <span>우울함</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="무기력함" />
+            <span>무기력함</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="긴장됨" />
+            <span>긴장됨</span>
+          </label>
+
+          <label class="option-button">
+            <input type="checkbox" name="mood" value="활력 넘침" />
+            <span>활력 넘침</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 운동 시간 선택 -->
+      <div class="input-group">
+        <h3>운동 가능 시간</h3>
+        <p class="hint">하나만 선택해주세요.</p>
+
+        <div class="option-group" id="time-options">
+          <label class="option-button">
+            <input type="radio" name="time" value="10분" />
+            <span>10분</span>
+          </label>
+
+          <label class="option-button">
+            <input type="radio" name="time" value="20분" />
+            <span>20분</span>
+          </label>
+
+          <label class="option-button">
+            <input type="radio" name="time" value="30분" />
+            <span>30분</span>
+          </label>
+
+          <label class="option-button">
+            <input type="radio" name="time" value="45분" />
+            <span>45분</span>
+          </label>
+
+          <label class="option-button">
+            <input type="radio" name="time" value="60분 이상" />
+            <span>60분 이상</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 추천 버튼 -->
+      <button id="recommendBtn" type="button" class="primary-button">
+        추천받기
+      </button>
+
+      <!-- 메시지 출력 -->
+      <p id="message" class="message"></p>
+
+      <!-- 결과 출력 -->
+      <div id="result" class="result-box">
+        <h3>추천 결과</h3>
+        <p id="resultText">선택을 완료한 후 추천받기 버튼을 눌러주세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section about-section">
+    <h2>About VibeFit</h2>
+    <p>
+      VibeFit은 사용자의 현재 상황과 감정 상태를 반영하여  
+      무리하지 않고 실천 가능한 운동을 추천하는 서비스입니다.
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 VibeFit. All rights reserved.</p>
+  </footer>
+
+  <!-- JavaScript 연결 -->
+  <script src="./js/script.js"></script>
+</body>
+</html>
