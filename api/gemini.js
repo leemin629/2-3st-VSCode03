@@ -183,10 +183,10 @@ try {
   console.error("Original Gemini Text:", text);
 
   return res.status(500).json({
-    success: false,
-    message: "AI 응답을 JSON으로 변환하지 못했습니다.",
-    originalText: text,
-  });
+  success: false,
+  message: error.message || "AI 응답 처리 중 오류가 발생했습니다.",
+  originalText: text,
+});
 }
 
     return res.status(200).json({
