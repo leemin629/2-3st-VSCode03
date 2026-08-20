@@ -7,14 +7,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingBox = document.getElementById("loadingBox");
   const resultBox = document.getElementById("resultBox");
 
-  // 여러 개 선택 가능한 버튼 설정
-  function setupMultipleSelect(buttons) {
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        button.classList.toggle("active");
-      });
+  // 최대 개수 제한이 있는 여러 개 선택 버튼 설정
+function setupMultipleSelect(buttons, maxCount) {
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // 이미 선택된 버튼을 다시 누르면 선택 해제
+      if (button.classList.contains("active")) {
+        button.classList.remove("active");
+        return;
+      }
+
+      // 현재 선택된 버튼 개수 확인
+      const selectedCount = Array.from(buttons).filter((btn) =>
+        btn.classList.contains("active")
+      ).length;
+
+      // 최대 선택 개수를 넘으면 막기
+      if (selectedCount >= maxCount) {
+        showError(`최대 ${maxCount}개까지만 선택할 수 있습니다.`);
+        return;
+      }
+
+      // 선택 추가
+      button.classList.add("active");
     });
-  }
+  });
+}
 
   // 하나만 선택 가능한 버튼 설정
   function setupSingleSelect(buttons) {
@@ -108,8 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  setupMultipleSelect(weatherButtons);
-  setupMultipleSelect(moodButtons);
+  setupMultipleSelect(weatherButtons, 2);
+  setupMultipleSelect(moodButtons, 2);
   setupSingleSelect(timeButtons);
 
   recommendBtn.addEventListener("click", async () => {
@@ -128,6 +146,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (selectedMood.length === 0) {
       showError("현재 기분이나 컨디션을 하나 이상 선택해주세요.");
+      return;
+    }
+
+    if (selectedWeather.length > 2) {
+      showError("오늘 날씨는 최대 2개까지만 선택할 수 있습니다.");
+      return;
+    }
+
+    if (selectedMood.length > 2) {
+      showError("현재 기분이나 컨디션은 최대 2개까지만 선택할 수 있습니다.");
       return;
     }
 
