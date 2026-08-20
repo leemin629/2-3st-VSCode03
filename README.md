@@ -249,6 +249,17 @@ maxOutputTokens: 1500
 - 개발자: leemin629
 - GitHub: https://github.com/leemin629/2-3st-VSCode03
 
+## 실행 후 화면
+
+<img width="1888" height="905" alt="VibeFit01" src="https://github.com/user-attachments/assets/cd0e3b36-4cc2-456b-af13-1d5e4108e790" />
+
+<img width="1897" height="898" alt="VibeFit02" src="https://github.com/user-attachments/assets/dd825385-a897-4bf8-a002-22c760994801" />
+
+<img width="1893" height="910" alt="VibeFit03" src="https://github.com/user-attachments/assets/57047d7f-5b9b-4fd6-911c-8a66050a32d9" />
+
+<img width="1903" height="899" alt="VibeFit04" src="https://github.com/user-attachments/assets/bc0971d3-3fff-458c-9f45-14babc9b6a46" />
+
+
 ## 라이선스
 
 이 프로젝트는 학습 목적으로 제작되었습니다.
