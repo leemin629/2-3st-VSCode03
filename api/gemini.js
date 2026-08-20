@@ -50,7 +50,9 @@ export default async function handler(req, res) {
 - 걷기와 스트레칭은 준비 운동이나 마무리 운동으로만 활용하세요.
 - 날씨, 기분/컨디션, 운동 가능 시간을 반드시 반영해서 추천하세요.
 - 컨디션이 좋고 시간이 충분하면 조깅, 자전거, 근력 운동, 서킷 트레이닝처럼 조금 더 활동적인 운동을 추천하세요.
+-사용자의 컨디션이 "상쾌함", "활력 넘침"이고 운동 시간이 60분 이상이면, "가벼운 걷기" 또는 "스트레칭"을 메인 운동으로 추천하지 마세요. 이 경우 실내 유산소, 근력 운동, 자전거, 서킷 트레이닝, 조깅 중 하나를 메인 운동으로 추천하세요.
 - 날씨가 좋으면 야외 운동을 적극적으로 추천하세요.
+-날씨가 더운 경우에는 야외 걷기보다 실내 자전거, 실내 유산소, 맨몸 근력 운동, 전신 서킷 트레이닝을 우선 추천하세요.
 - 날씨가 나쁘거나 미세먼지/비/추위/더위가 있다면 실내 운동을 추천하세요.
 - 운동 시간이 짧으면 짧고 효율적인 루틴을 추천하세요.
 - 운동 시간이 길면 준비 운동, 본 운동, 마무리 운동을 포함한 루틴을 추천하세요.
@@ -140,27 +142,38 @@ export default async function handler(req, res) {
 
     let recommendation;
 
-    try {
-      const cleanedText = text
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+try {
+  const cleanedText = text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
 
-      recommendation = JSON.parse(cleanedText);
-    } catch (error) {
-      console.error("JSON Parse Error:", error);
-      console.error("Original Gemini Text:", text);
+  const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
 
-      recommendation = {
-        exercise: "가벼운 걷기 또는 스트레칭",
-        reason:
-          "현재 선택한 상태를 기준으로 무리하지 않고 몸을 천천히 움직이는 운동이 적합합니다.",
-        caution:
-          "운동 전후로 스트레칭을 하고, 몸 상태가 좋지 않으면 즉시 휴식을 취하세요.",
-        routine:
-          "5분 준비운동 → 20~30분 가벼운 운동 → 5~10분 마무리 스트레칭",
-      };
-    }
+  if (!jsonMatch) {
+    throw new Error("Gemini 응답에서 JSON 형식을 찾지 못했습니다.");
+  }
+
+  recommendation = JSON.parse(jsonMatch[0]);
+
+  if (
+    !recommendation.exercise ||
+    !recommendation.reason ||
+    !recommendation.caution ||
+    !recommendation.routine
+  ) {
+    throw new Error("추천 결과에 필요한 항목이 부족합니다.");
+  }
+} catch (error) {
+  console.error("JSON Parse Error:", error);
+  console.error("Original Gemini Text:", text);
+
+  return res.status(500).json({
+    success: false,
+    message: "AI 응답을 JSON으로 변환하지 못했습니다.",
+    originalText: text,
+  });
+}
 
     return res.status(200).json({
       success: true,
