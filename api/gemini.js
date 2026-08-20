@@ -21,17 +21,21 @@ export default async function handler(req, res) {
       });
     }
 
-    const { weather, mood, time } = req.body;
+  const { weather, mood, condition, time } = req.body;
 
-    if (!weather || !mood || !time) {
+  const selectedMood = mood || condition;
+
+  if (!weather || !selectedMood || !time) {
       return res.status(400).json({
         success: false,
         message: "날씨, 기분/컨디션, 운동 가능 시간을 모두 선택해주세요.",
-      });
-    }
+     });
+  }
 
-    const weatherText = Array.isArray(weather) ? weather.join(", ") : weather;
-    const moodText = Array.isArray(mood) ? mood.join(", ") : mood;
+  const weatherText = Array.isArray(weather) ? weather.join(", ") : weather;
+  const moodText = Array.isArray(selectedMood)
+    ? selectedMood.join(", ")
+    : selectedMood;  
 
     const prompt = `
 당신은 사용자의 날씨, 기분/컨디션, 운동 가능 시간을 바탕으로 안전하고 적절한 운동을 추천하는 AI 피트니스 코치입니다.
@@ -86,7 +90,8 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Gemini API Error:", data);
+      console.error("Gemini API Error Message:", data?.error?.message);
+      console.error("Gemini API Full Error:", JSON.stringify(data, null, 2));  
 
       return res.status(response.status).json({
         success: false,
