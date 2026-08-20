@@ -153,41 +153,49 @@ export default async function handler(req, res) {
       });
     }
 
-    let recommendation;
+        let recommendation;
 
-try {
-  const cleanedText = text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .replace(/#/g, "")
-    .trim();
+    try {
+      let cleanedText = text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .replace(/#/g, "")
+        .trim();
 
-  const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      // ✅ [추가 1] key/value를 감싼 백틱(`)을 큰따옴표(")로 변환
+      cleanedText = cleanedText.replace(/`/g, '"');
 
-  if (!jsonMatch) {
-    throw new Error("Gemini 응답에서 JSON 형식을 찾지 못했습니다.");
-  }
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
 
-  recommendation = JSON.parse(jsonMatch[0]);
+      if (!jsonMatch) {
+        throw new Error("Gemini 응답에서 JSON 형식을 찾지 못했습니다.");
+      }
 
-  if (
-    !recommendation.exercise ||
-    !recommendation.reason ||
-    !recommendation.caution ||
-    !recommendation.routine
-  ) {
-    throw new Error("추천 결과에 필요한 항목이 부족합니다.");
-  }
-} catch (error) {
-  console.error("JSON Parse Error:", error);
-  console.error("Original Gemini Text:", text);
+      let jsonString = jsonMatch[0];
 
-  return res.status(500).json({
-  success: false,
-  message: error.message || "AI 응답 처리 중 오류가 발생했습니다.",
-  originalText: text,
-});
-}
+      // ✅ [추가 2] 값 안의 줄바꿈을 공백으로 변환 (JSON 문법 오류 방지)
+      jsonString = jsonString.replace(/\n/g, " ").replace(/\r/g, " ");
+
+      recommendation = JSON.parse(jsonString);
+
+      if (
+        !recommendation.exercise ||
+        !recommendation.reason ||
+        !recommendation.caution ||
+        !recommendation.routine
+      ) {
+        throw new Error("추천 결과에 필요한 항목이 부족합니다.");
+      }
+    } catch (error) {
+      console.error("JSON Parse Error:", error);
+      console.error("Original Gemini Text:", text);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message || "AI 응답 처리 중 오류가 발생했습니다.",
+        originalText: text,
+      });
+    }
 
     return res.status(200).json({
       success: true,
