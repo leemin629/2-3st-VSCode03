@@ -407,7 +407,9 @@ Gemini API 사용 중 요청이 많아지면 429 오류가 발생할 수 있습�
 
 ##  스마트폰에서 실행 화면
 
+<img width="585" height="1266" alt="스마트폰 실행01" src="https://github.com/user-attachments/assets/bf29383c-5ecb-4230-ac18-6add7be9cae3" />
 
+<img width="585" height="1266" alt="스마트폰 실행02" src="https://github.com/user-attachments/assets/67b36069-13c4-457f-a8f4-3e1ad55c7e31" />
 
 
 
