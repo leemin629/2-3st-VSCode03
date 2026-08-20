@@ -121,10 +121,20 @@ export default async function handler(req, res) {
             },
           ],
           generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 700,
+            temperature: 0.2,
+            maxOutputTokens: 500,
             responseMimeType: "application/json",
-          },
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                exercise: { type: "STRING" },
+                reason: { type: "STRING" },
+                caution: { type: "STRING" },
+                routine: { type: "STRING" },
+              },
+              required: ["exercise", "reason", "caution", "routine"],
+            },
+          }
         }),
       }
     );
@@ -156,27 +166,7 @@ export default async function handler(req, res) {
         let recommendation;
 
     try {
-      let cleanedText = text
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .replace(/#/g, "")
-        .trim();
-
-      // ✅ [추가 1] key/value를 감싼 백틱(`)을 큰따옴표(")로 변환
-      cleanedText = cleanedText.replace(/`/g, '"');
-
-      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-
-      if (!jsonMatch) {
-        throw new Error("Gemini 응답에서 JSON 형식을 찾지 못했습니다.");
-      }
-
-      let jsonString = jsonMatch[0];
-
-      // ✅ [추가 2] 값 안의 줄바꿈을 공백으로 변환 (JSON 문법 오류 방지)
-      jsonString = jsonString.replace(/\n/g, " ").replace(/\r/g, " ");
-
-      recommendation = JSON.parse(jsonString);
+      recommendation = JSON.parse(text);
 
       if (
         !recommendation.exercise ||
