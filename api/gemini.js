@@ -159,7 +159,7 @@ try {
   const cleanedText = text
     .replace(/```json/g, "")
     .replace(/```/g, "")
-    .replace(/#/g, '"')
+    .replace(/#/g, "")
     .trim();
 
   const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
